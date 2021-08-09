@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>0.1.0</Version>
+    <Description>Adds extension methods to System.Net.Sockets.Socket to support Source Multicast, a technology favored by the IETF to support inter-domain multicast packet routing and delivery. (See RFC 8815 for more information.)</Description>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kyanha/Kyanha.Net.Sockets.Extensions</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kyanha/Kyanha.Net.Sockets.Extensions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>ssm, source specific multicast, source multicast, ipv6 multicast, ipv4 multicast, ipv6, ipv4</PackageTags>
+    <PackageReleaseNotes>0.1.0: Initial commit, no tests yet (because I need to build my lab to support them). Windows only.</PackageReleaseNotes>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+</Project>
