@@ -14,7 +14,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
     /// MCAST_LEAVE_SOURCE_GROUP
     /// MCAST_UNBLOCK_SOURCE</remarks>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    internal struct MulticastSourceSocketAddress
+    internal struct SockaddrStorage
     {
         [MarshalAs(UnmanagedType.I2)]
         internal short Family;      // formally defined as ADDRESS_FAMILY, but it's a C short (2 bytes)
@@ -25,9 +25,9 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 112)]
         byte[] PaddingBlock2;
 
-        internal static int Size { get => Marshal.SizeOf<MulticastSourceSocketAddress>(); }
+        internal static int Size { get => Marshal.SizeOf<SockaddrStorage>(); }
 
-        internal unsafe MulticastSourceSocketAddress(SocketAddress input)
+        internal unsafe SockaddrStorage(SocketAddress input)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -52,7 +52,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             return;
         }
 
-        static public implicit operator SocketAddress(MulticastSourceSocketAddress input)
+        static public implicit operator SocketAddress(SockaddrStorage input)
         {
             SocketAddress sa = new SocketAddress((AddressFamily)input.Family);
             for (int i = 0; i < sa.Size; i++)
@@ -62,9 +62,9 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             return sa;
         }
 
-        static public implicit operator MulticastSourceSocketAddress(SocketAddress sa)
+        static public implicit operator SockaddrStorage(SocketAddress sa)
         {
-            return new MulticastSourceSocketAddress(sa);
+            return new SockaddrStorage(sa);
         }
     }
 }

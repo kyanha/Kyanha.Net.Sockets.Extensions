@@ -50,8 +50,8 @@ namespace Kyanha.Net.Sockets.SourceMulticast
 
             GroupSourceRequestData gsr = new GroupSourceRequestData()
             {
-                gsr_group = new MulticastSourceSocketAddress(Group),
-                gsr_source = new MulticastSourceSocketAddress(Source),
+                gsr_group = new SockaddrStorage(Group),
+                gsr_source = new SockaddrStorage(Source),
                 gsr_interface = Interface
             };
             SocketError serror = Interop.setsockopt(sock.SafeHandle,

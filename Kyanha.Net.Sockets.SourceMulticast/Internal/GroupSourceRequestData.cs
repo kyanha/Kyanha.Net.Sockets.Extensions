@@ -20,11 +20,11 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
         /// <summary>
         /// The multicast group to declare a source for.
         /// </summary>
-        internal MulticastSourceSocketAddress gsr_group;
+        internal SockaddrStorage gsr_group;
         /// <summary>
         /// The unicast address of the source to operate with.
         /// </summary>
-        internal MulticastSourceSocketAddress gsr_source;
+        internal SockaddrStorage gsr_source;
 
         internal static readonly int Size = Marshal.SizeOf<GroupSourceRequestData>();
 
