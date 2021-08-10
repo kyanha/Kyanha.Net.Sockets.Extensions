@@ -12,6 +12,8 @@ Currently, these methods are supported only on Windows. There's nothing preventi
 
 RFC 8815 deprecated Any Source Multicast (ASM) for inter-domain communication, in favor of Source Specific Multicast (SSM). While Windows supports SSM, the base class libraries of .Net don't (currently, as of .Net 5.0). This issue is tracked at [Dotnet Runtime issue 36170](https://github.com/dotnet/runtime/issues/36170).
 
+The SSM specification, RFC 4607, has section 4.3 which states that there should exist an API to allocate SSM group addresses. Unfortunately, the author has not been able to find any such API on Windows or on Linux. (This includes the suggested API from RFC 2771.)
+
 Windows has a "Protocol-Independent Multicast" architecture, which makes it possible for these `setsockopt` calls to work on both IPv4 and IPv6 addresses and sockets, as long as all Source and Group addresses provided are the same address family as the `Socket` they're issued on. Theoretically, this wouldn't be limited to IPv4 and IPv6, but those are the only two address families that the rest of the .Net BCL supports at this time.
 
 Windows also has a "final-state-based multicast" configuration system which uses `WSAioctl` instead of `setsockopt` to specify the multicast sources interested in, but this library does not implement this interface at this time. This means that you will need to provide your Sources one at a time.
@@ -32,7 +34,7 @@ So, here's my humble contribution to make the world a slightly better place.
 
 4. A multicast group can have multiple Sources. With these calls, you tell the system (and the network) what Sources you are actually interested in (and, potentially, which ones you're not). This impacts packet propagation for multicast packets from those sources.
 
-5. Once you join a group, you will receive all packets sent to that group that your network receives, whether or not they're from the senders that you specifically requested. If another process on your system or on your network requests the same Group with different Sources, you will receive packets from those Sources as well. Your request to join a Group with a particular Source does *not* tell the system to prevent you from receiving packets from other Sources, or limit you only to those Sources you've whitelisted.
+5. Once you join a source group, even though RFC 4607 suggests otherwise, you might receive all packets sent to that group that your network receives, whether or not they're from the sources that you specifically requested. If another process on your system or on your network requests the same Group with different Sources, you will receive packets from those Sources as well. You should be prepared for the possibility that your request to join a Group with a particular Source might *not* tell the system to prevent you from receiving packets from other Sources, or limit you only to those Sources you've whitelisted.  (While this may not be the case on Windows, it may be the case on any given Unix that dotnet runs on, and it's best to be prepared for the possibility.)
 
 6. If packets from Sources that were not requested are received, you can try to block the offending Source. [[Unanswered question: does this cause the system to firewall those packets away from your Socket, while still allowing other Sockets to receive them?]]
 
