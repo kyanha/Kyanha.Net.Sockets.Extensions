@@ -41,7 +41,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast
         public static void UnblockMulticastGroupFromSource(this Socket sock, MulticastGroupSourceOption mgso)
             => DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode.MCAST_UNBLOCK_SOURCE, sock, mgso.InterfaceIndex, mgso.Group, mgso.Source);
 
-        internal static void DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode opcode, Socket sock, ulong Interface, SocketAddress Group, SocketAddress Source)
+        private static void DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode opcode, Socket sock, ulong Interface, SocketAddress Group, SocketAddress Source)
         {
             if (sock == null) throw new ArgumentNullException(nameof(sock));
             if (Group == null) throw new ArgumentNullException(nameof(Group));
@@ -50,8 +50,8 @@ namespace Kyanha.Net.Sockets.SourceMulticast
 
             GroupSourceRequestData gsr = new GroupSourceRequestData()
             {
-                gsr_group = new SockaddrStorage(Group),
-                gsr_source = new SockaddrStorage(Source),
+                gsr_group = new SockaddrStorage6(Group),
+                gsr_source = new SockaddrStorage6(Source),
                 gsr_interface = Interface
             };
             SocketError serror = Interop.setsockopt(sock.SafeHandle,

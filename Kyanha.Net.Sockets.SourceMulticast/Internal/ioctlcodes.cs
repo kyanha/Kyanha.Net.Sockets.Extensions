@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Kyanha.Net.Sockets.SourceMulticast.Internal
 {
-    enum MulticastModeType : Int32
+    internal enum ioctlcodes : uint
     {
-        McastInclude = 0,
-        McastExclude = 1,
+        SIOCSMSFILTER = 0x8004747E,
+        SIOCGMSFILTER = 0x8004747F
     }
 }
