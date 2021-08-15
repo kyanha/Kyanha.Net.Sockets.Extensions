@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kyanha.Net.Sockets.SourceMulticast.Internal
 {
-    enum MulticastModeType : Int32
+    enum MulticastModeType : UInt32
     {
         McastInclude = 0,
         McastExclude = 1,

@@ -34,7 +34,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal unsafe struct SockaddrStorage6
     {
-        private short family;                   // offset 0   - 0 longs
+        private Int16 family;                   // offset 0   - 0 longs
         private ushort port;                    // offset 2
         private UInt32 flowInformation;         // offset 4
         private fixed byte addressData[16];     // offset 8   - 1 long
@@ -52,7 +52,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
                 family = value;
             }
         }
-        // TODO: Change these get and set statements to network byte order
+
         public ushort Port { get => NetworkToHostShort(port); set => port = HostToNetworkShort(value); }
         public UInt32 FlowInformation { get => NetworkToHostInt32(flowInformation); set => flowInformation = HostToNetworkInt32(value); }
         public ulong ScopeID { get => NetworkToHostLong(scopeID); set => scopeID = HostToNetworkLong(value); }
@@ -89,16 +89,16 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             }
         }
 
-        internal unsafe SockaddrStorage6(SocketAddress input)
+        internal unsafe SockaddrStorage6(IPAddress input)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
-            if (input.Family != AddressFamily.InterNetworkV6)
+            if (input.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6)
             {
-                throw new ArgumentException($"Expected address family {AddressFamily.InterNetworkV6}, received address family {input.Family}");
+                throw new ArgumentException($"Expected address family {AddressFamily.InterNetworkV6}, received address family {input.AddressFamily}");
             }
 
-            family = (short)input.Family;
+            family = (short)input.AddressFamily;
             // We have to zero all the other fields out before we can bytecopy
             port = 0;
             scopeID = 0;
@@ -106,25 +106,24 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             for (int i = 0; i < 12; i++)
                 Padding[i] = 0;
 
-            // This not &family because SocketAddress doesn't put its Family in its access array.
-            fixed (ushort* datashort = &port)
+            // Now, we copy the address bytes over.
             {
-                byte* data = (byte*)datashort;
-                for (int i = 0; i < input.Size; i++)
+                byte[] inputAddress = input.GetAddressBytes();
+                for (int i = 0; i < 16; i++)
                 {
-                    data[i] = input[i];
+                    addressData[i] = inputAddress[i];
                 }
             }
             return;
         }
 
-        // Implements the same interface as SocketAddress, i.e. gives the entire
+        // Implements the same interface as IPAddress, i.e. gives the entire
         // structure starting at offset 2 (because Family is read-only)
         public byte this[int offset]
         {
             get
             {
-                if (offset < 0 || offset > 126)
+                if (offset < 0 || offset > 125)
                 {
                     throw new IndexOutOfRangeException();
                 }
@@ -139,7 +138,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             }
             set
             {
-                if (offset < 0 || offset > 126)
+                if (offset < 0 || offset > 125)
                 {
                     throw new IndexOutOfRangeException();
                 }
@@ -154,19 +153,42 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             }
         }
 
-        static public implicit operator SocketAddress(SockaddrStorage6 input)
+        static public implicit operator IPAddress(SockaddrStorage6 input)
         {
-            SocketAddress sa = new SocketAddress((AddressFamily)input.Family);
-            for (int i = 0; i < sa.Size; i++)
-            {
-                sa[i] = input[i];
-            }
-            return sa;
+            return new IPAddress(input.AddressData);
         }
 
-        static public implicit operator SockaddrStorage6(SocketAddress sa)
+        static public implicit operator SockaddrStorage6(IPAddress sa)
         {
             return new SockaddrStorage6(sa);
+        }
+
+        static public explicit operator SockaddrStorage6(SockaddrStorage sas)
+        {
+            if(sas.Family != (short)AddressFamily.InterNetworkV6)
+            { 
+                throw new ArgumentException($"Expected address family {(Int16)AddressFamily.InterNetworkV6}, received address family {sas.Family}");
+            }
+            SockaddrStorage6 sas6 = new SockaddrStorage6
+            {
+                Family = sas.Family
+            };
+            for (int i=0; i<126; i++)
+            {
+                sas6[i] = sas.StructureData[i];
+            }
+            return sas6;
+        }
+
+        static public implicit operator SockaddrStorage(SockaddrStorage6 sas6)
+        {
+            SockaddrStorage sas = new SockaddrStorage();
+            sas.Family = sas6.Family;
+            for (int i=0; i < 126; i++)
+            {
+                sas.StructureData[i] = sas6[i];
+            }
+            return sas;
         }
     }
 }

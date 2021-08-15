@@ -41,43 +41,43 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
         public ushort Port { get => Interop.NetworkToHostShort(port); set => port = HostToNetworkShort(value); }
         public UInt32 AddressData { get => NetworkToHostInt32(addressData); set => addressData = HostToNetworkInt32(value); }
 
-        internal unsafe SockaddrStorage4(SocketAddress input)
+        internal unsafe SockaddrStorage4(IPAddress input)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
-            if (input.Family != AddressFamily.InterNetwork)
+            if (input.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
             {
-                throw new ArgumentException($"Expected address family {AddressFamily.InterNetwork}, received address family {input.Family}");
+                throw new ArgumentException($"Expected address family {AddressFamily.InterNetwork}, received address family {input.AddressFamily}");
             }
-            // We have to zero all the other fields out, which is done by the byte[] constructors.
-            family = (short)input.Family;
+            // We have to zero all the other fields out before we can set the addressData.
+            family = (short)input.AddressFamily;
             port = 0;
             addressData = 0;
             zero = 0;
             for (int i = 0; i < 15; i++)
                 Padding[i] = 0;
 
-            // This not &family because SocketAddress doesn't put its Family in its access array.
-            fixed (ushort* datashort = &port)
+            // This, because we can't have unions in C#.
+            fixed (uint* datashort = &addressData)
             {
                 byte* data = (byte*)datashort;
-                for (int i = 0; i < input.Size; i++)
+                for (int i = 0; i < input.GetAddressBytes().Length; i++)
                 {
-                    data[i] = input[i];
+                    data[i] = input.GetAddressBytes()[i];
                 }
             }
             return;
         }
 
-        // Implements the same interface as SocketAddress, i.e. gives the entire
+        // Implements the same interface as IPAddress, i.e. gives the entire
         // structure starting at offset 2 (because Family is read-only)
         public byte this[int offset]
         {
             get
             {
-                if (offset < 0 || offset > 126)
+                if (offset < 0 || offset > 125)
                 {
-                    throw new IndexOutOfRangeException();
+                    throw new IndexOutOfRangeException("0 to 125, please");
                 }
                 unsafe
                 {
@@ -90,9 +90,9 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             }
             set
             {
-                if (offset < 0 || offset > 126)
+                if (offset < 0 || offset > 125)
                 {
-                    throw new IndexOutOfRangeException();
+                    throw new IndexOutOfRangeException("0 to 125, please");
                 }
                 unsafe
                 {
@@ -105,19 +105,29 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             }
         }
 
-        static public implicit operator SocketAddress(SockaddrStorage4 input)
+        static public implicit operator IPAddress(SockaddrStorage4 input)
         {
-            SocketAddress sa = new SocketAddress((AddressFamily)input.Family);
-            for (int i = 0; i < sa.Size; i++)
-            {
-                sa[i] = input[i];
-            }
+            IPAddress sa = new IPAddress(input.addressData);
             return sa;
         }
 
-        static public implicit operator SockaddrStorage4(SocketAddress sa)
+        static public implicit operator SockaddrStorage4(IPAddress sa)
         {
             return new SockaddrStorage4(sa);
+        }
+
+        static public implicit operator SockaddrStorage4(SockaddrStorage sa)
+        {
+            if (sa.Family != (short)AddressFamily.InterNetwork)
+            {
+                throw new ArgumentException($"Expected address family {AddressFamily.InterNetwork}, received address family {sa.Family}");
+            }
+            SockaddrStorage4 ss4 = new();
+            for(int i = 0; i < 126; i++)
+            {
+                ss4[i] = sa[i];
+            }
+            return ss4;
         }
     }
 }

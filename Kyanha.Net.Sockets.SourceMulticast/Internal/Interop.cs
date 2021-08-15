@@ -24,7 +24,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
         [DllImport("Ws2_32.dll", SetLastError = true)]
         internal static extern SocketError WSAIoctl(
             SafeSocketHandle socketHandle,
-            [In] ioctlcodes ioControlCode,
+            [In] FinalStateBased.ioctlcodes ioControlCode,
             [In, Out] ref Guid guid,
             [In] int guidSize,
             [Out] out IntPtr funcPtr,
@@ -36,7 +36,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
         [DllImport("Ws2_32", SetLastError = true, EntryPoint = "WSAIoctl")]
         internal static extern SocketError WSAIoctl_Blocking(
             SafeSocketHandle socketHandle,
-            [In] ioctlcodes ioControlCode,
+            [In] FinalStateBased.ioctlcodes ioControlCode,
             [In] IntPtr inBuffer,
             [In] int inBufferSize,
             [Out] IntPtr outBuffer,

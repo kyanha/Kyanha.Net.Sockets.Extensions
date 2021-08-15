@@ -10,13 +10,21 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
     /// <summary>
     /// Managed implementation of native structure GROUP_SOURCE_REQ.
     /// </summary>
+    /// <remarks>
+    /// typedef struct group_source_req
+    /// {
+    ///     ULONG gsr_interface;        // Interface index.
+    ///     SOCKADDR_STORAGE gsr_group; // Group address.
+    ///     SOCKADDR_STORAGE gsr_source; // Source address.
+    /// } GROUP_SOURCE_REQ, * PGROUP_SOURCE_REQ;
+    /// </remarks>
     [StructLayout(LayoutKind.Sequential,Pack = 1)]
     internal struct GroupSourceRequestData
     {
         /// <summary>
         /// The interface index (for the socket's protocol family) to operate upon.
         /// </summary>
-        internal ulong gsr_interface;
+        internal UInt32 gsr_interface;
         /// <summary>
         /// The multicast group to declare a source for.
         /// </summary>

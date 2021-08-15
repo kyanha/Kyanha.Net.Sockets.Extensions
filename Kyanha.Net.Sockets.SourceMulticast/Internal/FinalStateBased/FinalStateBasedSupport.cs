@@ -8,27 +8,32 @@ using System.Text;
 using System.Threading.Tasks;
 using Kyanha.Net.Sockets.SourceMulticast.Internal;
 
-namespace Kyanha.Net.Sockets.SourceMulticast
+
+namespace Kyanha.Net.Sockets.SourceMulticast.Internal.FinalStateBased
 {
     public static class FinalStateBasedSupport
     {
 
-        public static void AddListToMulticastGroup(this Socket socket, UInt32 InterfaceIndex, SocketAddress GroupToFilter, IList<SocketAddress> SocketAddresses) =>
-            PerformWSAIoctlForMulticastFilter(socket, InterfaceIndex, GroupToFilter, SocketAddresses, Internal.MulticastModeType.McastInclude);
+        public static void AddListToMulticastGroup(this Socket socket, UInt32 InterfaceIndex, IPAddress GroupToFilter, IList<IPAddress> IPAddresses) =>
+            PerformWSAIoctlForMulticastFilter(socket, InterfaceIndex, GroupToFilter, IPAddresses, Internal.MulticastModeType.McastInclude);
         
-        internal static void PerformWSAIoctlForMulticastFilter(Socket socket, UInt32 InterfaceIndex, SocketAddress GroupToFilter, IList<SocketAddress> SocketAddresses, Internal.MulticastModeType operation)
+        internal static void PerformWSAIoctlForMulticastFilter(Socket socket, UInt32 InterfaceIndex, IPAddress GroupToFilter, IList<IPAddress> IPAddresses, Internal.MulticastModeType operation)
         {
+            // First, figure out which structure we need.
+            AddressFamily Family = (AddressFamily)GroupToFilter.AddressFamily;
+
+
             // Allocate the GroupFilter structure.
-            Internal.GroupFilter6 groupFilter = new Internal.GroupFilter6();
+            GroupFilter groupFilter = new GroupFilter();
 
             // Set the members of the structure.
             groupFilter.InterfaceIndex = InterfaceIndex;
             groupFilter.Group = GroupToFilter;
-            groupFilter.NumberOfSources = (uint)SocketAddresses.Count;
+            groupFilter.NumberOfSources = (uint)IPAddresses.Count;
             groupFilter.MulticastMode = operation;
             // The size of the above parameters is 140.
 
-            int sizeToAllocate = 148 + (SocketAddresses.Count * 128);
+            int sizeToAllocate = 148 + (IPAddresses.Count * 128);
 
             byte[] WSAIoctlBuffer = new byte[sizeToAllocate];
 
@@ -46,12 +51,12 @@ namespace Kyanha.Net.Sockets.SourceMulticast
                         dest[offset++] = src[i];
                     }
 
-                    // Now, we need to convert the elements of SocketAddresses to SockaddrStorage structures,
+                    // Now, we need to convert the elements of IPAddresses to SockaddrStorage structures,
                     // and append them to the initialization that's occurred before.
 
-                    for (int i = 0; i < SocketAddresses.Count; i++)
+                    for (int i = 0; i < IPAddresses.Count; i++)
                     {
-                        Internal.SockaddrStorage6 sockaddrStorage = SocketAddresses[i];
+                        Internal.SockaddrStorage6 sockaddrStorage = IPAddresses[i];
                         byte* sockaddrsrc = (byte*)&sockaddrStorage;
                         for (int j = 0; j<128; j++)
                         {

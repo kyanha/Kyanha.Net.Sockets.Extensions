@@ -1,0 +1,10 @@
+﻿Use the dynamic language runtime to minimize unsafe code between SockaddrStorage4 and SockaddrStorage6.
+
+Figure out how to create SockaddrStorage[46] structures from the list of nominated Sources.
+Figure out how to query the list of Sources and recreate the list (WSAIoctl).
+
+Write tests for the operation (not yet necessarily correct operation) of the setsockopt calls.
+
+Figure out what needs to be rewritten to run it on Linux, and abstract it out (like SocketPal_Windows versus SocketPal_Unix).
+  - SourceMulticastOpcode
+  - 

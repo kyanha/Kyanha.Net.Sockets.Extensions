@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Kyanha.Net.Sockets.SourceMulticast.Internal;
 
-namespace Kyanha.Net.Sockets.SourceMulticast.Internal
+namespace Kyanha.Net.Sockets.SourceMulticast.Internal.FinalStateBased
 {
     //// Definitions of MCAST_INCLUDE and MCAST_EXCLUDE for multicast source filter.
     //
@@ -29,7 +30,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
     /// </summary>
     /// <remarks>This is only part of the structure needed. The assembly of the full structure will
     /// necessarily involve finding the number of elements in the list of
-    /// SocketAddresses submitted by the user, then allocating enough
+    /// IPAddresses submitted by the user, then allocating enough
     /// memory with Marshal.AllocHGlobal for
     /// <code>sizeof(GroupFilter) + (numberInList * sizeof(SockaddrStorage))</code>
     /// bytes, then creating SockaddrStorage structures from them and copying
@@ -42,4 +43,21 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
         internal MulticastModeType MulticastMode;      // 4 bytes -- C enums are always int, 4 bytes.
         internal UInt32 NumberOfSources;               // 4 bytes
     }
+
+    internal struct GroupFilter4
+    {
+        internal UInt32 InterfaceIndex;
+        internal SockaddrStorage4 Group;
+        internal MulticastModeType MulticastMode;
+        internal UInt32 NumberOfSources;
+    }
+
+    internal struct GroupFilter
+    {
+        internal UInt32 InterfaceIndex;
+        internal SockaddrStorage Group;
+        internal MulticastModeType MulticastMode;
+        internal UInt32 NumberOfSources;
+    }
+
 }

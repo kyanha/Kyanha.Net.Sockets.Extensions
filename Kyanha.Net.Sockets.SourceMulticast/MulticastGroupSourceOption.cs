@@ -7,12 +7,12 @@ namespace Kyanha.Net.Sockets.SourceMulticast
     /// </summary>
     public class MulticastGroupSourceOption
     {
-        private ulong interfaceIndex;
-        private SocketAddress group;
-        private SocketAddress source;
+        private uint interfaceIndex = 0;
+        private IPAddress group = IPAddress.Parse("FF3E::0000:0001");
+        private IPAddress source = IPAddress.Parse("::1");
 
-        public ulong InterfaceIndex { get => interfaceIndex; set => interfaceIndex = value; }
-        public SocketAddress Group { get => group; set => group = value; }
-        public SocketAddress Source { get => source; set => source = value; }
+        public uint InterfaceIndex { get => interfaceIndex; set => interfaceIndex = value; }
+        public IPAddress Group { get => group; set => group = value; }
+        public IPAddress Source { get => source; set => source = value; }
     }
 }
