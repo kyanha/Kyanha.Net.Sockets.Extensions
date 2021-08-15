@@ -9,14 +9,6 @@ namespace Kyanha.Net.Sockets.SourceMulticast
 {
     public static class SocketExtensions
     {
-        // MCAST_BLOCK_SOURCE
-        [SupportedOSPlatform("windows")]
-        public static void BlockMulticastGroupFromSource(this Socket sock, SocketAddress Group, SocketAddress ToBlock, ulong Interface)
-            => DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode.MCAST_BLOCK_SOURCE,sock,Interface,Group,ToBlock);
-        [SupportedOSPlatform("windows")]
-        public static void BlockMulticastGroupFromSource(this Socket sock, MulticastGroupSourceOption mgso)
-            => DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode.MCAST_BLOCK_SOURCE, sock, mgso.InterfaceIndex, mgso.Group, mgso.Source);
-
         // MCAST_JOIN_SOURCE_GROUP
         [SupportedOSPlatform("windows")]
         public static void JoinMulticastGroupWithSource(this Socket sock, SocketAddress Group, SocketAddress ToListenFrom, ulong Interface)
@@ -32,14 +24,6 @@ namespace Kyanha.Net.Sockets.SourceMulticast
         [SupportedOSPlatform("windows")]
         public static void LeaveMulticastGroupWithSource(this Socket sock, MulticastGroupSourceOption mgso)
             => DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode.MCAST_LEAVE_SOURCE_GROUP, sock, mgso.InterfaceIndex, mgso.Group, mgso.Source);
-
-        // MCAST_UNBLOCK_SOURCE</remarks>
-        [SupportedOSPlatform("windows")]
-        public static void UnblockMulticastGroupFromSource(this Socket sock, SocketAddress Group, SocketAddress ToUnblock, ulong Interface)
-        => DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode.MCAST_UNBLOCK_SOURCE, sock, Interface, Group, ToUnblock);
-        [SupportedOSPlatform("windows")]
-        public static void UnblockMulticastGroupFromSource(this Socket sock, MulticastGroupSourceOption mgso)
-            => DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode.MCAST_UNBLOCK_SOURCE, sock, mgso.InterfaceIndex, mgso.Group, mgso.Source);
 
         internal static void DoProtocolIndependentMcastSourceOperation(SourceMulticastOpcode opcode, Socket sock, ulong Interface, SocketAddress Group, SocketAddress Source)
         {
