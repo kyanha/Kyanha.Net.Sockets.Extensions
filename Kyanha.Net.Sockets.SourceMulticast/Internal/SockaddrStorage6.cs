@@ -68,7 +68,6 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
                         retval[i] = data[i];
                     }
                 }
-                Array.Reverse(retval);
                 return retval;
             }
             set
@@ -78,7 +77,6 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
                 // Should not have side effects on the array passed as 'value', so we copy to a new one
                 var tmp = new byte[value.Length];
                 value.CopyTo(tmp, 0);
-                Array.Reverse(tmp);
                 fixed (byte* data = addressData)
                 {
                     for(int i = 0; i < tmp.Length; i++)
@@ -106,13 +104,10 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             for (int i = 0; i < 12; i++)
                 Padding[i] = 0;
 
-            // Now, we copy the address bytes over.
+            byte[] inputAddress = input.GetAddressBytes();
+            for (int i = 0; i < 16; i++)
             {
-                byte[] inputAddress = input.GetAddressBytes();
-                for (int i = 0; i < 16; i++)
-                {
-                    addressData[i] = inputAddress[i];
-                }
+                addressData[i] = inputAddress[i];
             }
             return;
         }
@@ -163,7 +158,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
             return new SockaddrStorage6(sa);
         }
 
-        static public explicit operator SockaddrStorage6(SockaddrStorage sas)
+        static public implicit operator SockaddrStorage6(SockaddrStorage sas)
         {
             if(sas.Family != (short)AddressFamily.InterNetworkV6)
             { 

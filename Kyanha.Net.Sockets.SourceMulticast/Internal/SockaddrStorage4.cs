@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Net;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Kyanha.Net.Sockets.SourceMulticast.Internal.Interop;
 
 namespace Kyanha.Net.Sockets.SourceMulticast.Internal
@@ -38,8 +33,8 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
 
         internal static int Size { get => Marshal.SizeOf<SockaddrStorage4>(); }
         public short Family { get => family; set => family = value; }
-        public ushort Port { get => Interop.NetworkToHostShort(port); set => port = HostToNetworkShort(value); }
-        public UInt32 AddressData { get => NetworkToHostInt32(addressData); set => addressData = HostToNetworkInt32(value); }
+        public ushort Port { get => port; set => port = value; }
+        public UInt32 AddressData { get => addressData; set => addressData = value; }
 
         internal unsafe SockaddrStorage4(IPAddress input)
         {
@@ -107,8 +102,7 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
 
         static public implicit operator IPAddress(SockaddrStorage4 input)
         {
-            IPAddress sa = new IPAddress(input.addressData);
-            return sa;
+            return new IPAddress(input.AddressData);
         }
 
         static public implicit operator SockaddrStorage4(IPAddress sa)
@@ -128,6 +122,17 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
                 ss4[i] = sa[i];
             }
             return ss4;
+        }
+
+        static public implicit operator SockaddrStorage(SockaddrStorage4 sas4)
+        {
+            SockaddrStorage sas = new SockaddrStorage();
+            sas.Family = sas4.Family;
+            for (int i = 0; i < 126; i++)
+            {
+                sas.StructureData[i] = sas4[i];
+            }
+            return sas;
         }
     }
 }

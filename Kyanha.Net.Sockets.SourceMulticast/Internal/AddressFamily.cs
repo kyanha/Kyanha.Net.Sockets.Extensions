@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kyanha.Net.Sockets.SourceMulticast.Internal
 {
+    /// <summary>
+    /// This is copied directly from System.Net.Sockets:AddressFamily.cs (via github:dotnet/runtime)
+    /// but fit into an Int16 to avoid casts from that version's extended values beyond Winsock.
+    /// </summary>
     public enum AddressFamily : Int16
     {
         Unknown = -1,           // Unknown

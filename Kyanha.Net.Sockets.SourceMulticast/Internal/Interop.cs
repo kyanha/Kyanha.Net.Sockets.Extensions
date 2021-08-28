@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kyanha.Net.Sockets.SourceMulticast.Internal
 {
@@ -15,35 +11,23 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
         internal static extern SocketError setsockopt(
             [In] SafeSocketHandle socketHandle,
             [In] SocketOptionLevel optionLevel,
-            [In] SocketOptionName optionName,
-            [In] ref GroupSourceRequestData optionValue,
+            [In] SourceMulticastOpcode optionName,
+            [In] ref group_source_req optionValue,
             [In] int optionLength);
-        #endregion
-        #region WSAIoctl
-        // Used with SIOGETEXTENSIONFUNCTIONPOINTER - we're assuming that will never block.
         [DllImport("Ws2_32.dll", SetLastError = true)]
-        internal static extern SocketError WSAIoctl(
-            SafeSocketHandle socketHandle,
-            [In] FinalStateBased.ioctlcodes ioControlCode,
-            [In, Out] ref Guid guid,
-            [In] int guidSize,
-            [Out] out IntPtr funcPtr,
-            [In] int funcPtrSize,
-            [Out] out int bytesTransferred,
-            [In] IntPtr shouldBeNull,
-            [In] IntPtr shouldBeNull2);
-
-        [DllImport("Ws2_32", SetLastError = true, EntryPoint = "WSAIoctl")]
-        internal static extern SocketError WSAIoctl_Blocking(
-            SafeSocketHandle socketHandle,
-            [In] FinalStateBased.ioctlcodes ioControlCode,
-            [In] IntPtr inBuffer,
-            [In] int inBufferSize,
-            [Out] IntPtr outBuffer,
-            [In] int outBufferSize,
-            [Out] out int bytesTransferred,
-            [In] IntPtr overlapped,
-            [In] IntPtr completionRoutine);
+        internal unsafe static extern SocketError setsockopt(
+            [In] SafeSocketHandle socketHandle,
+            [In] SocketOptionLevel optionLevel,
+            [In] SourceMulticastOpcode optionName,
+            [In] byte* optionValue,
+            [In] int optionLength);
+        [DllImport("Ws2_32.dll", SetLastError = true)]
+        internal unsafe static extern SocketError setsockopt(
+            [In] SafeSocketHandle socketHandle,
+            [In] SocketOptionLevel optionLevel,
+            [In] SourceMulticastOpcode optionName,
+            [In] ref GroupSourceReqStruct optionValue,
+            [In] int optionLength);
         #endregion
         #region host to network byte order (managed)
         internal static ulong HostToNetworkLong(ulong value) => WinsockSwapUInt64(value);

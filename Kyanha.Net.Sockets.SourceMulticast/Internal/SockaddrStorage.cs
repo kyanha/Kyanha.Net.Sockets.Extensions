@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace Kyanha.Net.Sockets.SourceMulticast.Internal
 {
@@ -8,8 +9,10 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
     /// </summary>
     internal unsafe struct SockaddrStorage
     {
-        internal short Family;
+        internal Int16 Family;
         internal fixed byte StructureData[126];
+
+        internal static int Size { get => Marshal.SizeOf<SockaddrStorage>(); }
 
         public byte this[int offset]
         {
@@ -28,37 +31,56 @@ namespace Kyanha.Net.Sockets.SourceMulticast.Internal
                 StructureData[offset] = value;
             }
         }
-        public static implicit operator SockaddrStorage(IPAddress address)
+        public SockaddrStorage(IPAddress address)
         {
-            SockaddrStorage ss = new();
-            ss.Family = (short)address.AddressFamily;
+            Family = (short)address.AddressFamily;
 
-            if (ss.Family == (short)AddressFamily.InterNetworkV6)
+            if (Family == (short)AddressFamily.InterNetworkV6)
             {
                 unsafe
                 {
                     SockaddrStorage6 ss6 = new(address);
                     for (int i = 0; i < 125; i++)
                     {
-                        ss.StructureData[i] = ss6[i];
+                        StructureData[i] = ss6[i];
                     }
                 }
-            } 
-            else if (ss.Family == (short)AddressFamily.InterNetwork)
+            }
+            else if (Family == (short)AddressFamily.InterNetwork)
             {
                 unsafe
                 {
                     SockaddrStorage4 ss4 = new(address);
                     for (int i = 0; i < 125; i++)
                     {
-                        ss.StructureData[i] = ss4[i];
+                        StructureData[i] = ss4[i];
                     }
                 }
-            } else
+            }
+            else
             {
                 throw new ArgumentException($"Unknown address family {address.AddressFamily}");
             }
-            return ss;
+        }
+
+        public static implicit operator SockaddrStorage(IPAddress address) => new SockaddrStorage(address);
+
+        public static implicit operator IPAddress(SockaddrStorage sas)
+        {
+            if (sas.Family == (short)AddressFamily.InterNetwork)
+            {
+                var sas4 = (SockaddrStorage4)sas;
+                return new IPAddress(sas4.AddressData);
+            }
+            else if (sas.Family == (short)AddressFamily.InterNetworkV6)
+            {
+                var sas6 = (SockaddrStorage6)sas;
+                return new IPAddress(sas6.AddressData);
+            }
+            else
+            {
+                throw new ArgumentException($"{nameof(SockaddrStorage)} was neither {(short)AddressFamily.InterNetwork} nor {(short)AddressFamily.InterNetworkV6}");
+            }
         }
     }
 }

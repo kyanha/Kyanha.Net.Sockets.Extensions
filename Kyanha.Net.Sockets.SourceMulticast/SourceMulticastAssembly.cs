@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+
+// This source file contains attributes associated with the assembly itself.
 
 [assembly: InternalsVisibleTo("SourceMulticast.Tests")]
 
